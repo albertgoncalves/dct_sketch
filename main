@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+f="src/main"
+hlint -c=never "$f.hs"
+ghc "$f.hs"
+./$f
