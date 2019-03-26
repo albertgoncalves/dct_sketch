@@ -3,6 +3,7 @@ with pkgs; mkShell {
     name = "Haskell";
     buildInputs = [
         (haskell.packages.ghc864.ghcWithPackages (pkgs: [
+            pkgs.regex-compat
             pkgs.hlint
         ]))
         libiconv
