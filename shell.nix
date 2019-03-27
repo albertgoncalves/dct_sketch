@@ -5,6 +5,7 @@ with pkgs; mkShell {
         (haskell.packages.ghc864.ghcWithPackages (pkgs: [
             pkgs.regex-compat
             pkgs.hlint
+            pkgs.hoogle
         ]))
         libiconv
     ];
