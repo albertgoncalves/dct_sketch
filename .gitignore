@@ -3,5 +3,4 @@
 !shell.nix
 !main
 !src/
-src/main
 !*.hs
