@@ -25,5 +25,5 @@ extractRegex = (mapM readMaybe =<<) . matchRegex groups
 
 main :: IO ()
 main = do
-    mapM_ (print . scaleTo16bit) [0, 1, 120, 255]
+    mapM_ (print . scaleTo16bit) [0, 1, 120, 2255]
     print $ extractRegex "0,1: (65535,65535,65535)  #FFFFFF  gray(255)"

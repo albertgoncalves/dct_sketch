@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-for f in dct utils; do
-    hlint -c=never "src/$f.hs"
-    ghc "src/$f.hs"
-    src/$f
-done
+hlint -c=never "$1.hs"
+ghc "$1.hs"
+./$1
