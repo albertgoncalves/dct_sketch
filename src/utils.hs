@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wall #-}
 
+import Control.Monad ((<=<))
 import Text.Read (readMaybe)
 import Text.Regex (matchRegex, mkRegex, Regex)
 
@@ -22,7 +23,7 @@ coerce [a, b, c] = Just (a, b, c)
 coerce _ = Nothing
 
 extractRegex :: String -> Maybe (Int, Int, Int)
-extractRegex = (coerce =<<) . (mapM readMaybe =<<) . matchRegex groups
+extractRegex = coerce <=< mapM readMaybe <=< matchRegex groups
 
 invert :: Int -> Int
 invert = (255 -)
