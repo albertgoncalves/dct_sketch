@@ -2,23 +2,21 @@
 
 import System.Random (mkStdGen, setStdGen, randomIO)
 
-split :: IO ([a], [a]) -> a -> IO ([a], [a])
-split ab x = ab >>= \ab' -> rand >>= return . path ab' x
-  where
-    rand = randomIO :: IO Bool
-    path (a, b) x' True = (x':a, b)
-    path (a, b) x' False = (a, x':b)
+-- https://hackage.haskell.org/package/extra-1.5.1/docs/src/Control.Monad.Extra.html#partitionM
+partitionM :: Monad m => (a -> m Bool) -> [a] -> m ([a], [a])
+partitionM _ [] = return ([], [])
+partitionM f (x:xs) =
+    f x >>= \y ->
+    partitionM f xs >>= \(a, b) ->
+    return ([x | y] ++ a, [x | not y] ++ b)
 
 shuffle :: [a] -> IO [a]
 shuffle [] = return []
 shuffle [x] = return [x]
 shuffle xs =
-    foldl split empty xs >>= \(before, after) ->
+    partitionM (\_ -> randomIO :: IO Bool) xs >>= \(before, after) ->
     shuffle before >>= \before' ->
-    shuffle after >>=
-    return . (before' ++)
-  where
-    empty = return ([], [])
+    shuffle after >>= return . (before' ++)
 
 main :: IO ()
 main =
