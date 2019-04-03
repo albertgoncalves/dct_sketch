@@ -6,6 +6,7 @@ with pkgs; mkShell {
             pkgs.regex-compat
             pkgs.hlint
             pkgs.hoogle
+            pkgs.tf-random
         ]))
         libiconv
     ];
