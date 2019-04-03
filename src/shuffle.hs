@@ -2,27 +2,23 @@
 
 import System.Random (mkStdGen, setStdGen, randomIO)
 
-boolPath :: ([a], [a]) -> a -> Bool -> ([a], [a])
-boolPath (a, b) x True = (x:a, b)
-boolPath (a, b) x False = (a, x:b)
-
-randSplit :: IO ([a], [a]) -> a -> IO ([a], [a])
-randSplit ab x =
-    ab >>= \ab' ->
-    (randomIO :: IO Bool) >>=
-    return . boolPath ab' x
-
-randPart :: [a] -> IO ([a], [a])
-randPart = foldl randSplit $ return ([], [])
+split :: IO ([a], [a]) -> a -> IO ([a], [a])
+split ab x = ab >>= \ab' -> rand >>= return . path ab' x
+  where
+    rand = randomIO :: IO Bool
+    path (a, b) x' True = (x':a, b)
+    path (a, b) x' False = (a, x':b)
 
 shuffle :: [a] -> IO [a]
 shuffle [] = return []
 shuffle [x] = return [x]
 shuffle xs =
-    randPart xs >>= \(before, after) ->
+    foldl split empty xs >>= \(before, after) ->
     shuffle before >>= \before' ->
     shuffle after >>=
     return . (before' ++)
+  where
+    empty = return ([], [])
 
 main :: IO ()
 main =
