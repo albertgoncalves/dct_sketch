@@ -2,29 +2,31 @@
 
 import Data.Function (on)
 import Data.List (intercalate, partition)
-import System.Random (random, split)
+import System.Random (next, random, split)
 import System.Random.TF (TFGen, seedTFGen)
 
 mapPair :: (a -> b) -> (a, a) -> (b, b)
 mapPair = uncurry . on (,)
 
-randBools :: TFGen -> [(Bool, TFGen)]
-randBools g = iterate (random . snd) (random g)
+attach :: [a] -> TFGen -> [(a, Bool)] -> ([(a, Bool)], TFGen)
+attach [] g accu = (accu, snd $ next g)
+attach (x:xs) g accu = attach xs g'((x, b):accu)
+  where
+    (b, g') = random g
 
 partitionR :: [a] -> TFGen -> (([a], TFGen), ([a], TFGen))
 partitionR xs g = ((ls, lg), (rs, rg))
   where
-    ys = zip xs (randBools g)
-    f = mapPair (map fst)
-    (lg, rg) = (split . snd . snd) (foldl1 (curry snd) ys)
-    (ls, rs) = f (partition (fst . snd) ys)
+    (ys, g') = attach xs g []
+    (ls, rs) = mapPair (map fst) (partition snd ys)
+    (lg, rg) = split g'
 
 shuffle :: ([a], TFGen) -> ([a], TFGen)
 shuffle ([], g) = ([], g)
 shuffle ([x], g) = ([x], g)
 shuffle (xs, g) = (ls' ++ rs', rg')
   where
-    ((ls', _), (rs', rg')) = mapPair shuffle $ partitionR xs g
+    ((ls', _), (rs', rg')) = mapPair shuffle (partitionR xs g)
 
 loop :: Int -> (a -> (b, a)) -> a -> [b] -> [b]
 loop n f x accu
@@ -36,7 +38,7 @@ loop n f x accu
 main :: IO ()
 main = pprint ys
   where
-    n = 10
+    n = 20
     xs = [1 .. 5] :: [Int]
     seed = seedTFGen (0, 0, 0, 0)
     ys = loop n (curry shuffle xs) seed []
