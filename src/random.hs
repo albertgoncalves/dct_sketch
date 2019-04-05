@@ -21,25 +21,24 @@ partitionR xs g = ((ls, lg), (rs, rg))
     (ls, rs) = mapPair (map fst) (partition snd ys)
     (lg, rg) = split g'
 
-shuffle :: ([a], TFGen) -> ([a], TFGen)
-shuffle ([], g) = ([], g)
-shuffle ([x], g) = ([x], g)
-shuffle (xs, g) = (ls' ++ rs', rg')
+shuffle :: [a] -> TFGen -> ([a], TFGen)
+shuffle [] g = ([], g)
+shuffle [x] g = ([x], g)
+shuffle xs g = (ls' ++ rs', rg')
   where
-    ((ls', _), (rs', rg')) = mapPair shuffle (partitionR xs g)
+    ((ls', _), (rs', rg')) = mapPair (uncurry shuffle) (partitionR xs g)
 
-loop :: Int -> (a -> (b, a)) -> a -> [b] -> [b]
-loop n f x accu
-    | n <= 0 = accu
-    | otherwise = loop (n - 1) f x' (xs:accu)
+loop :: Show a => Int -> (TFGen -> ([a], TFGen)) -> TFGen -> IO ()
+loop n f g
+    | n <= 0 = return ()
+    | otherwise = pprint xs >> loop (n - 1) f g'
   where
-    (xs, x') = f x
+    (xs, g') = f g
+    pprint = putStrLn . intercalate "," . map show
 
 main :: IO ()
-main = pprint ys
+main = loop n (shuffle xs) seed
   where
-    n = 20
+    n = 10
     xs = [1 .. 5] :: [Int]
     seed = seedTFGen (0, 0, 0, 0)
-    ys = loop n (curry shuffle xs) seed []
-    pprint = putStr . unlines . map (intercalate "," . map show)
