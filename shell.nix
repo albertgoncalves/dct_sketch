@@ -7,6 +7,7 @@ with pkgs; mkShell {
             pkgs.hlint
             pkgs.hoogle
             pkgs.tf-random
+            pkgs.cairo
         ]))
         libiconv
     ];

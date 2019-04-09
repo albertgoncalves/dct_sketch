@@ -4,3 +4,6 @@
 !main
 !src/
 !*.hs
+!cairo/
+!Paths.hs
+
